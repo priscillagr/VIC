@@ -1,0 +1,52 @@
+---
+version: "2"
+services:
+  wordpress:
+    image: "wordpress:latest"
+    environment:
+    - "WORDPRESS_DB_HOST=db:3306"
+    - "WORDPRESS_DB_USER=wordpress"
+    - "WORDPRESS_DB_PASSWORD=wordpress"
+    volumes:
+    - "html-data:/var/www/html"
+    ports:
+    - "8080:80"
+    restart: "no"
+    networks:
+      db-net:
+        aliases:
+        - "db-net"
+      web-net:
+        aliases:
+        - "web-net"
+  db:
+    image: "mysql:5.7"
+    command:
+    - "--datadir=/var/lib/mysql/data"
+    environment:
+    - "MYSQL_ROOT_PASSWORD=somewordpress"
+    - "MYSQL_DATABASE=wordpress"
+    - "MYSQL_USER=wordpress"
+    - "MYSQL_PASSWORD=wordpress"
+    volumes:
+    - "db-data:/var/lib/mysql"
+    restart: "no"
+    network_mode: "bridge"
+    networks:
+    - "db-net"
+networks:
+  db-net:
+    external: false
+  web-net:
+    external: false
+volumes:
+  db-data:
+    driver: "vsphere"
+    driver_opts:
+      Capacity: "4G"
+      VolumeStore: "default"
+  html-data:
+    driver: "vsphere"
+    driver_opts:
+      Capacity: "2G"
+      VolumeStore: "default"
