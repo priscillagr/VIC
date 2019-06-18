@@ -35,12 +35,12 @@ volumes:
        driver: "vsphere"
        driver_opts:
           Capacity: "4G"
-          VolumeStore: "backed-up-encrypted"
+          VolumeStore: "default"
     html-data:
        driver: "vsphere"
        driver_opts:
           Capacity: "2G"
-          VolumeStore: "default2"
+          VolumeStore: "default"
 
 networks:
     web-net:
