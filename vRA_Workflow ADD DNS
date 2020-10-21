@@ -1,0 +1,76 @@
+##Workflow Variables 
+Dns
+ZoneName
+Ip
+Hostname
+
+##Workflow inputs
+Properties inputPropertie
+
+
+
+##Get vRA Payload ## - Scriptable Task
+input
+inputProperites
+
+output
+hostname
+ipaddress
+
+Script
+var ip;
+var customProperties = new Properties();
+customProperties = inputProperties.get("customProperties");
+
+ip = inputProperties.get("addresses");
+ipaddress = ip[0][0];
+hostname = customProperties.get("vm_name");  #criar no blueprint essa custom propertie
+
+System.log("Get Payload - Hostname:" + hostname);
+System.log("Get Payload - IPAddress:" + ipaddress);
+
+/*
+System.log("Tipo da variavel ip: " +typeof ip);
+System.log("Tipo da variavel hostanme: " +typeof hostname);
+System.log("Tipo da variavel ipaddress: " +typeof ipaddress);
+*/
+
+##Workflow Element - Run Powershell Script
+input
+Dns
+ZoneName
+Ip - ipaddress
+Hostname - hostname
+
+output - script
+
+## Script
+System.log("Nome: " + NodeToRegister);
+System.log("IP: " + IPAddress);
+System.log("Zone: " + ZoneName);
+System.log("DNS: " +DNSServer );
+
+
+script = 'Add-DnsServerResourceRecordA -Name "'+NodeToRegister+'" '
+        +'-ComputerName "'+DNSServer+'" '
+        +'-ZoneName "'+ZoneName+'" '
+        +'-AllowUpdateAny -IPv4Address "'+IPAddress+'" '
+        +'-CreatePTR;';
+
+
+System.log("Script montado: " +script);
+
+##Script 2
+
+System.log("Script que chegou: " +script);
+
+var output;
+var session;
+try {
+	session = host.openSession();
+	output = System.getModule("com.vmware.library.powershell").invokeScript(host,script,session.getSessionId()) ;
+} finally {
+	if (session){
+		host.closeSession(session.getSessionId());
+	}
+}
