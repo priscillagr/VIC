@@ -1,0 +1,41 @@
+formatVersion: 1
+inputs:
+  hostname:
+    type: string
+    default: cloudname
+    minLength: 3
+    maxLength: 12
+  user:
+    type: string
+  password:
+    type: string
+    encrypted: false
+resources:
+  cloud-machine:
+    type: Cloud.vSphere.Machine
+    properties:
+      vm_name: '${input.hostname}'
+      image: centos7
+      flavor: tiny
+      cloudConfig: |
+        #cloudconfig
+        output: {all: '| tee -a /var/log/cloud-init-output.log'}
+        users:
+          - name: ${input.user}
+            groups: sudo
+            shell: /bin/bash
+            sudo: ['ALL=(ALL) NOPASSWD:ALL']
+            lock-passwd: false
+            passwd: ${input.password}
+        runcmd:
+          - hostnamectl set-hostname '${input.hostname}'
+        finalmessage: "VERALIZE AUTOMATION COMPLETOU EM $UPTIME S"
+      networks:
+        - network: '${resource["cloud-network"].id}'
+          assignment: static
+  cloud-network:
+    type: Cloud.vSphere.Network
+    properties:
+      networkType: existing
+      constraints:
+        - tag: 'network:cloud
